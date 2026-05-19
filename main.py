@@ -59,7 +59,7 @@ class Book:
                 f"{self.author.last_name} {self.author.first_name} - "
                 f"`{self.name}`. Рейтинг: {self.rating}")
 
-    def __dict__(self):
+    def to_dict(self):
         return {
             "date": datetime.strftime(self.date, DATE_FORMAT),
             "name": self.name,
@@ -75,7 +75,7 @@ def read_db():
         data = json.load(file)
         for item in data:
             parsed_data.append(
-                Book(date=datetime.strptime(item["date"], DATE_FORMAT),
+                Book(date=item["date"],
                      name=item["name"],
                      rating=item["rating"],
                      author=Author(
@@ -95,7 +95,7 @@ def write_db(data: list):
     data_to_write = []
     try:
         for item in data:
-            data_to_write.append(item.__dict__())
+            data_to_write.append(item.to_dict())
         file.write(json.dumps(data_to_write, ensure_ascii=False))
     except Exception as error:
         print(f"Не удалось записать файл базы данных. Ошибка `{error}`")
