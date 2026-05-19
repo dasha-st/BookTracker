@@ -108,7 +108,7 @@ def write_db(data: list):
 
 
 def add_book():
-    print(f"{FUNC_SEP}\nДобавление книги\n{MENU_SEP}")
+    print(f"{FUNC_SEP}\nДобавление книги\n{FUNC_SEP}")
     try:
         date = input("Введите дату прочтения в формате ДД-ММ-ГГГГ...\n")
         author_first_name = input("Введите имя автора...\n")
