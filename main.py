@@ -91,11 +91,15 @@ def read_db():
         file.close()
 
 def write_db(data: list):
-    file = open(DB_PATH, "w", encoding="utf-8")
     data_to_write = []
     try:
         for item in data:
             data_to_write.append(item.to_dict())
+    except Exception as error:
+        print(f"Не удалось подготовить данные для записи. Ошибка `{error}`")
+        return
+    file = open(DB_PATH, "w", encoding="utf-8")
+    try:
         file.write(json.dumps(data_to_write, ensure_ascii=False))
     except Exception as error:
         print(f"Не удалось записать файл базы данных. Ошибка `{error}`")
