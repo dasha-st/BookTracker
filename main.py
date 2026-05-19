@@ -126,6 +126,11 @@ def add_book():
         return
     try:
         db = read_db()
+        for book in db:
+            if (book.name.lower() == new_book.name.lower() and
+                    str(book.author).lower() == str(new_book.author).lower()):
+                print(f"Такая книга уже есть в базе: {book}")
+                return
         db.append(new_book)
         write_db(db)
     except Exception as error:
