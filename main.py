@@ -44,7 +44,7 @@ class Book:
             rating = int(rating)
         except Exception:
             rating = 1
-        return  rating if rating >= 1 <= 5 else 5
+        return rating if 1 <= rating <= 5 else 5
 
     @staticmethod
     def define_date(date):
