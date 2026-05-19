@@ -2,6 +2,7 @@ from datetime import datetime
 from enum import Enum
 from pathlib import Path
 import json
+import sys
 
 
 DB_PATH = Path(__file__).parent / "books.json"
@@ -129,10 +130,9 @@ def add_book():
 
 def list_books():
     print(f"{FUNC_SEP}\nСписок прочитанных книг\n{FUNC_SEP}")
-    try:
-        db = read_db()
-    except Exception as error:
-        print(f"Не удалось прочитать базу данных. Причина `{error}`.")
+    db = read_db()
+    if not len(db):
+        print(f"--Нет записей--")
         return
     for item in db:
         print(item)
@@ -140,10 +140,9 @@ def list_books():
 
 def avg_rating():
     print(f"{FUNC_SEP}\nСредняя оценка по книгам\n{FUNC_SEP}")
-    try:
-        db = read_db()
-    except Exception as error:
-        print(f"Не удалось прочитать базу данных. Причина `{error}`.")
+    db = read_db()
+    if not len(db):
+        print(f"--Нет записей--")
         return
     total_books = len(db)
     sum_rating = sum(i.rating for i in db)
@@ -151,17 +150,10 @@ def avg_rating():
     print(f"Всего книг прочитано: {total_books}\nСредняя оценка: {rating}")
 
 
-def author_stats():
-    print(f"{FUNC_SEP}\nСтатистика по авторам\n{FUNC_SEP}")
-    try:
-        db = read_db()
-    except Exception as error:
-        print(f"Не удалось прочитать базу данных. Причина `{error}`.")
-        return
+def sort_db_by_authors(db):
+    """Собираем информацию по каждому автору"""
     processed_authors = []
     books_by_author = {}
-
-    # Собираем информацию по каждому автору
     for item in db:
         author_full_name = str(item.author)
         if author_full_name in processed_authors:
@@ -172,6 +164,16 @@ def author_stats():
             if str(item.author) == author_full_name:
                 books_by_author[author_full_name].append(item)
         processed_authors.append(author_full_name)
+    return books_by_author
+
+
+def author_stats():
+    print(f"{FUNC_SEP}\nСтатистика по авторам\n{FUNC_SEP}")
+    db = read_db()
+    if not len(db):
+        print(f"--Нет записей--")
+        return
+    books_by_author = sort_db_by_authors(db)
 
     # Выводим статистику по каждому автору:
     for author, books in books_by_author.items():
@@ -186,10 +188,51 @@ def author_stats():
             print(f"\t\t- {i.name}")
 
 
-def remove_book(): ...
+def remove_book():
+    """
+    Предлагаем выбрать автора, затем его книгу.
+    Выбранную книгу удаляем. Должно быть проще при больших объемах
+    """
+    print(f"{FUNC_SEP}\nУдаление книги\n{FUNC_SEP}")
+    db = read_db()
+    if not len(db):
+        print(f"--Нет записей--")
+        return
+    books_by_author = sort_db_by_authors(db)
+    enumerated_authors = {i: author for i, author in enumerate(books_by_author.keys(), start=1)}
+    print("Авторы в базе данных:")
+    for i, author in enumerated_authors.items():
+        print(f"\t{i}\t{author}")
+    try:
+        choice = int(input("Введите номер автора, чью книгу хотите удалить\n"))
+    except Exception as error:
+        print(f"Не удалось распознать ответ. Причина `{error}`.")
+        return
+    chosen_author = enumerated_authors.get(choice)
+    if chosen_author is None:
+        print(f"Не найден автор по номеру `{choice}`. Попробуйте снова.")
+        return
+    enumerated_books = {i: book for i, book in enumerate(books_by_author[chosen_author], start=1)}
+    print(f"Книги выбранного автора `{chosen_author}`:")
+    for i, book in enumerated_books.items():
+        print(f"\t{i}\t{book}")
+    try:
+        choice = int(input("Введите номер книги, которую хотите удалить\n"))
+    except Exception as error:
+        print(f"Не удалось распознать ответ. Причина `{error}`.")
+        return
+    chosen_book = enumerated_books.get(choice)
+    if chosen_book is None:
+        print(f"Не найдена книга по номеру `{choice}`. Попробуйте снова.")
+        return
+    db.remove(chosen_book)
+    write_db(db)
+    print(f"Книга успешно удалена")
 
 
-def exit_program(): ...
+def exit_program():
+    print(f"{FUNC_SEP}\nВыход из программы. До встречи!\n{FUNC_SEP}")
+    sys.exit(0)
 
 
 MENU_ENTRY_MAP = {
