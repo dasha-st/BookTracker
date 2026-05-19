@@ -68,7 +68,6 @@ class Book:
 
 
 def read_db():
-    print("Чтение файла базы данных...")
     file = open(DB_PATH, "r", encoding="utf-8")
     parsed_data = []
     try:
@@ -83,7 +82,6 @@ def read_db():
                          last_name=item["author"]["last_name"])
                      )
             )
-            print("База данных успешно загружена")
         return parsed_data
     except Exception as error:
         print(f"Не удалось прочитать файл базы данных. Ошибка `{error}`")
@@ -92,14 +90,12 @@ def read_db():
         file.close()
 
 def write_db(data: list):
-    print("Запись изменений в базу данных...")
     file = open(DB_PATH, "w", encoding="utf-8")
     data_to_write = []
     try:
         for item in data:
             data_to_write.append(item.__dict__())
         file.write(json.dumps(data_to_write, ensure_ascii=False))
-        print(f"Файл базы данных успешно записан")
     except Exception as error:
         print(f"Не удалось записать файл базы данных. Ошибка `{error}`")
     finally:
@@ -131,13 +127,63 @@ def add_book():
         print(f"Не удалось записать в базу новую книгу. Причина `{error}`.")
 
 
-def list_books(): ...
+def list_books():
+    print(f"{FUNC_SEP}\nСписок прочитанных книг\n{FUNC_SEP}")
+    try:
+        db = read_db()
+    except Exception as error:
+        print(f"Не удалось прочитать базу данных. Причина `{error}`.")
+        return
+    for item in db:
+        print(item)
 
 
-def avg_rating(): ...
+def avg_rating():
+    print(f"{FUNC_SEP}\nСредняя оценка по книгам\n{FUNC_SEP}")
+    try:
+        db = read_db()
+    except Exception as error:
+        print(f"Не удалось прочитать базу данных. Причина `{error}`.")
+        return
+    total_books = len(db)
+    sum_rating = sum(i.rating for i in db)
+    rating = round(sum_rating / total_books, 2)
+    print(f"Всего книг прочитано: {total_books}\nСредняя оценка: {rating}")
 
 
-def author_stats(): ...
+def author_stats():
+    print(f"{FUNC_SEP}\nСтатистика по авторам\n{FUNC_SEP}")
+    try:
+        db = read_db()
+    except Exception as error:
+        print(f"Не удалось прочитать базу данных. Причина `{error}`.")
+        return
+    processed_authors = []
+    books_by_author = {}
+
+    # Собираем информацию по каждому автору
+    for item in db:
+        author_full_name = str(item.author)
+        if author_full_name in processed_authors:
+            continue
+        if books_by_author.get(author_full_name) is None:
+            books_by_author[author_full_name] = []
+        for item in db:
+            if str(item.author) == author_full_name:
+                books_by_author[author_full_name].append(item)
+        processed_authors.append(author_full_name)
+
+    # Выводим статистику по каждому автору:
+    for author, books in books_by_author.items():
+        total_books = len(books)
+        sum_rating = sum(i.rating for i in books)
+        rating = round(sum_rating / total_books, 2)
+        print(f"{author}\n"
+              f"\tВсего прочитано: {total_books} книг\n"
+              f"\tСредний рейтинг: {rating}\n"
+              f"\tКниги:")
+        for i in books:
+            print(f"\t\t- {i.name}")
 
 
 def remove_book(): ...
