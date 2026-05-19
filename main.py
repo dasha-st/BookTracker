@@ -141,7 +141,7 @@ def list_books():
     print(f"{FUNC_SEP}\nСписок прочитанных книг\n{FUNC_SEP}")
     db = read_db()
     if not len(db):
-        print(f"--Нет записей--")
+        print("--Нет записей--")
         return
     for item in db:
         print(item)
@@ -151,7 +151,7 @@ def avg_rating():
     print(f"{FUNC_SEP}\nСредняя оценка по книгам\n{FUNC_SEP}")
     db = read_db()
     if not len(db):
-        print(f"--Нет записей--")
+        print("--Нет записей--")
         return
     total_books = len(db)
     sum_rating = sum(i.rating for i in db)
@@ -180,7 +180,7 @@ def author_stats():
     print(f"{FUNC_SEP}\nСтатистика по авторам\n{FUNC_SEP}")
     db = read_db()
     if not len(db):
-        print(f"--Нет записей--")
+        print("--Нет записей--")
         return
     books_by_author = sort_db_by_authors(db)
 
@@ -205,7 +205,7 @@ def remove_book():
     print(f"{FUNC_SEP}\nУдаление книги\n{FUNC_SEP}")
     db = read_db()
     if not len(db):
-        print(f"--Нет записей--")
+        print("--Нет записей--")
         return
     books_by_author = sort_db_by_authors(db)
     enumerated_authors = {i: author for i, author in enumerate(books_by_author.keys(), start=1)}
